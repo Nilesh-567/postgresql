@@ -15,27 +15,6 @@ const pool = new Pool({
     port: 5432
 });
 
-// Create users table if it does not exist
-async function createTableIfNotExists() {
-    const createTableQuery = `
-        CREATE TABLE IF NOT EXISTS users (
-            id SERIAL PRIMARY KEY,
-            username VARCHAR(50) NOT NULL,
-            email VARCHAR(100) UNIQUE NOT NULL,
-            password VARCHAR(100) NOT NULL
-        );
-    `;
-    try {
-        await pool.query(createTableQuery);
-        console.log("Table 'users' is ready.");
-    } catch (error) {
-        console.error("Error creating table:", error);
-    }
-}
-
-// Call function to ensure table exists on startup
-createTableIfNotExists();
-
 // Sign-up route
 app.post("/signup", async (req, res) => {
     const { username, email, password } = req.body;
@@ -47,7 +26,7 @@ app.post("/signup", async (req, res) => {
         );
         res.json({ message: "User registered successfully!" });
     } catch (error) {
-        if (error.code === "23505") { // Unique constraint violation for email
+        if (error.code === "23505") {
             res.json({ message: "Email is already registered!" });
         } else {
             res.json({ message: "An error occurred. Please try again." });
